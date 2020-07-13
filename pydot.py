@@ -600,6 +600,8 @@ class Node(Common):
             self.obj_dict[ 'parent_graph' ] = None
             self.obj_dict[ 'parent_node_list' ] = None
             self.obj_dict[ 'sequence' ] = None
+            self.obj_dict[ 'in_edges' ] = []
+            self.obj_dict[ 'out_edges' ] = []
 
             # Remove the compass point
             #
@@ -637,6 +639,26 @@ class Node(Common):
         """Get the node's port."""
 
         return self.obj_dict['port']
+
+
+    def set_in_edges(self):
+        return self.obj_dict['in_edges']
+
+
+    def set_out_edges(self):
+        return self.obj_dict['out_edges']
+
+
+    def get_in_edges(self):
+        """Get all the incoming edges for this node. AKA all edges whose destination are this node."""
+
+        return self.obj_dict['in_edges']
+
+
+    def get_out_edges(self):
+        """Get all the outgoing edges for this node. AKA all edges whose source are this node."""
+
+        return self.obj_dict['out_edges']
 
 
     def add_style(self, style):
@@ -1236,7 +1258,7 @@ class Graph(Common):
 
 
     def add_edge(self, graph_edge):
-        """Adds an edge object to the graph.
+        """Adds an edge object to the graph. Updates each node's internal incoming/outgoing edge list.
 
         It takes a edge object as its only argument and returns
         None.
@@ -1259,11 +1281,18 @@ class Graph(Common):
 
             self.obj_dict['edges'][edge_points] = [ graph_edge.obj_dict ]
 
+        source = graph_edge.get_source()
+        dest = graph_edge.get_destination()
+        for node in self.get_nodes():
+            # Update each node
+            if source == node.get_name():
+                node.get_in_edges().append(graph_edge)
+            if dest == node.get_name():
+                node.get_out_edges().append(graph_edge)
 
         graph_edge.set_sequence( self.get_next_sequence_number() )
 
         graph_edge.set_parent_graph( self.get_parent_graph() )
-
 
 
     def del_edge(self, src_or_list, dst=None, index=None):
